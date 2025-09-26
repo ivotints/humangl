@@ -3,10 +3,10 @@ BINARY = humangl
 all: build
 
 build:
-    go build -o $(BINARY)
+	go build -o $(BINARY)
 
 run: build
-    ./$(BINARY)
+	./$(BINARY)
 
 clean:
-    rm -f $(BINARY)
+	rm -f $(BINARY)

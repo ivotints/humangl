@@ -19,11 +19,10 @@ func main() {
     }
     defer glfw.Terminate()
 
-    // Request OpenGL 4.1 core profile (изменяй по необходимости)
+    // Request OpenGL 4.1 core profile
     glfw.WindowHint(glfw.ContextVersionMajor, 4)
     glfw.WindowHint(glfw.ContextVersionMinor, 1)
     glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-    // glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True) // macOS
 
     win, err := glfw.CreateWindow(800, 600, "HumanGL test", nil, nil)
     if err != nil {
