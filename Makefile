@@ -1,15 +1,23 @@
 BINARY = humangl
 CMD_DIR = cmd/humangl
-	
+
 all: build
 
 build:
-	go build -o $(BINARY) ./$(CMD_DIR)
+	@xhost +local:docker > /dev/null 2>&1
+	@docker-compose build
+	@xhost -local:docker > /dev/null 2>&1
 
 run: build
-	./$(BINARY)
+	@xhost +local:docker > /dev/null 2>&1
+	@docker-compose up
+	@xhost -local:docker > /dev/null 2>&1
 
-clean:
-	rm -f $(BINARY)
+fclean:
+	@docker-compose down --rmi all > /dev/null 2>&1
+	@docker system prune -f > /dev/null 2>&1
+	@rm -f $(BINARY)
 
-.PHONY: all build run clean
+re: fclean build
+
+.PHONY: all build run fclean re
