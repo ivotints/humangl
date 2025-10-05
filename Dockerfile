@@ -1,54 +1,31 @@
-# Multi-stage build для оптимизации размера образа
-FROM golang:1.21-alpine AS builder
+# Compilation environment for systems without Go
+FROM golang:1.21
 
-# Установка необходимых пакетов для OpenGL и GLFW
-RUN apk add --no-cache \
+# Install necessary packages for OpenGL and GLFW compilation
+RUN apt-get update && apt-get install -y \
     gcc \
-    musl-dev \
     libx11-dev \
     libxrandr-dev \
     libxinerama-dev \
     libxcursor-dev \
     libxi-dev \
-    mesa-dev \
-    xorg-server-dev
+    libgl1-mesa-dev \
+    xorg-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Установка рабочей директории
+# Set working directory
 WORKDIR /app
 
-# Копирование go.mod и go.sum для кэширования зависимостей
+# Copy go.mod and go.sum for dependency caching
 COPY go.mod go.sum ./
 
-# Загрузка зависимостей
+# Download dependencies
 RUN go mod download
 
-# Копирование исходного кода
+# Copy source code
 COPY . .
 
-# Сборка приложения DO go run, not go build
-RUN CGO_ENABLED=1 GOOS=linux go build -o humangl ./cmd/humangl 
+# Build application
+RUN CGO_ENABLED=1 GOOS=linux go build -o humangl ./cmd/humangl
 
-# Финальный образ для запуска
-FROM alpine:latest
-
-# Установка библиотек для работы с OpenGL и X11
-RUN apk add --no-cache \
-    mesa-dri-gallium \
-    libx11 \
-    libxrandr \
-    libxinerama \
-    libxcursor \
-    libxi \
-    mesa-gl
-
-# Создание пользователя для безопасности
-RUN adduser -D -s /bin/sh humangl
-
-# Копирование скомпилированного приложения
-COPY --from=builder /app/humangl /usr/local/bin/humangl
-
-# Переключение на пользователя
-USER humangl
-
-# Запуск приложения
-CMD ["humangl"]
+# The binary will be copied out by the Makefile
