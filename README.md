@@ -1,5 +1,7 @@
 # OpenGL Project — HumanGL
 
+Write `make run` to launch program
+
 ## Introduction
 
 Since OpenGL 3.0 the native matrices and their associated functions (e.g. `glRotate`, `glPushMatrix`, etc.) are deprecated.
