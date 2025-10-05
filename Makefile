@@ -13,7 +13,7 @@ ifdef GO_INSTALLED
 else
 	@echo "Go not found, using Docker for compilation..."
 	@xhost +local:docker > /dev/null 2>&1
-	@docker build -t humangl-builder .
+	@DOCKER_BUILDKIT=1 docker build -t humangl-builder .
 	@docker create --name temp-container humangl-builder
 	@docker cp temp-container:/app/$(BINARY) ./$(BINARY)
 	@docker rm temp-container

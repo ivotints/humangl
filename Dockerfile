@@ -13,19 +13,25 @@ RUN apt-get update && apt-get install -y \
     xorg-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Enable Go build cache mount
+ENV GOCACHE=/tmp/go-cache
+
 # Set working directory
 WORKDIR /app
 
 # Copy go.mod and go.sum for dependency caching
 COPY go.mod go.sum ./
 
-# Download dependencies
+# Download dependencies (cached if go.mod/go.sum unchanged)
 RUN go mod download
 
 # Copy source code
 COPY . .
 
-# Build application
-RUN CGO_ENABLED=1 GOOS=linux go build -o humangl ./cmd/humangl
+# Build application with optimizations
+RUN --mount=type=cache,target=/tmp/go-cache \
+    CGO_ENABLED=1 GOOS=linux go build \
+    -ldflags="-s -w" \
+    -o humangl ./cmd/humangl
 
 # The binary will be copied out by the Makefile
