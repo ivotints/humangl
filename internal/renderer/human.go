@@ -11,7 +11,7 @@ import (
 type BodyPartSizes struct {
 	HeadSize     float32
 	TorsoWidth   float32
-	TorsoHeight  float32
+	TorsoHeight  float32 
 	TorsoDepth   float32
 	UpperArmSize float32
 	ForearmSize  float32

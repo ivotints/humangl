@@ -4,27 +4,28 @@ CMD_DIR = cmd/humangl
 # Check if Go is installed
 GO_INSTALLED := $(shell command -v go 2> /dev/null)
 
-all: build
+# Source files
+SOURCES = $(wildcard cmd/humangl/*.go) \
+          $(wildcard internal/*/*.go) \
+          go.mod go.sum
 
-build:
+all: $(BINARY)
+
+$(BINARY): $(SOURCES)
 ifdef GO_INSTALLED
 	@echo "Go found on host, building locally..."
 	@go build -o $(BINARY) ./$(CMD_DIR)
 else
 	@echo "Go not found, using Docker for compilation..."
-	@xhost +local:docker > /dev/null 2>&1
 	@DOCKER_BUILDKIT=1 docker build -t humangl-builder .
 	@docker create --name temp-container humangl-builder
 	@docker cp temp-container:/app/$(BINARY) ./$(BINARY)
 	@docker rm temp-container
-	@chmod +x $(BINARY)
-	@xhost -local:docker > /dev/null 2>&1
 	@echo "Binary extracted to host: $(BINARY)"
 endif
 
-run: build
-	@echo "Running $(BINARY)..."
-	@./$(BINARY)
+run: $(BINARY)
+	./$(BINARY)
 
 fclean:
 ifdef GO_INSTALLED
@@ -38,6 +39,6 @@ else
 	@rm -f $(BINARY)
 endif
 
-re: fclean build
+re: fclean $(BINARY)
 
-.PHONY: all build run fclean re
+.PHONY: all run fclean re
