@@ -156,8 +156,8 @@ func (h *Human) Draw(shader *Program, stack *matrix.MatrixStack) {
 	stack.Push()
 	stack.Translate(h.Sizes.TorsoWidth/4, -h.Sizes.TorsoHeight/2-h.Sizes.ThighSize/2, 0)
 	if h.AnimationMode == 1 {
-		// Walking leg swing - opposite phase
-		stack.RotateZ(float32(-0.3 * math.Sin(float64(-h.WalkCycle))))
+		// Walking leg swing - opposite phase to right leg
+		stack.RotateZ(float32(0.3 * math.Sin(float64(h.WalkCycle))))
 	}
 	stack.Scale(h.Sizes.ThighSize/2, h.Sizes.ThighSize, h.Sizes.ThighSize/2)
 	shader.SetMatrix4("model", stack.Current())
@@ -166,8 +166,8 @@ func (h *Human) Draw(shader *Program, stack *matrix.MatrixStack) {
 	// Draw left lower leg
 	stack.Translate(0, -h.Sizes.ThighSize/2-h.Sizes.LowerLegSize/2, 0)
 	if h.AnimationMode == 1 {
-		// Walking lower leg movement - opposite phase
-		stack.RotateZ(float32(0.6 * math.Sin(float64(-h.WalkCycle))))
+		// Walking lower leg movement - opposite phase to right leg
+		stack.RotateZ(float32(-0.6 * math.Sin(float64(h.WalkCycle))))
 	}
 	stack.Scale(1, h.Sizes.LowerLegSize/h.Sizes.ThighSize, 1)
 	shader.SetMatrix4("model", stack.Current())

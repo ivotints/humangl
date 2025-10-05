@@ -27,7 +27,7 @@ var (
 	cameraAngleY   = float32(0.0)
 	lastMouseX     = float64(windowWidth / 2)
 	lastMouseY     = float64(windowHeight / 2)
-	firstMouse     = true
+	rightMouseDown = false
 )
 
 // Animation state
@@ -186,12 +186,25 @@ func setupInputCallbacks(window *glfw.Window, human *renderer.Human) {
 		}
 	})
 
+	// Mouse button callback
+	window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
+		if button == glfw.MouseButtonRight {
+			if action == glfw.Press {
+				rightMouseDown = true
+				// Reset mouse position when starting to drag
+				xpos, ypos := w.GetCursorPos()
+				lastMouseX = xpos
+				lastMouseY = ypos
+			} else if action == glfw.Release {
+				rightMouseDown = false
+			}
+		}
+	})
+
 	// Mouse movement callback for camera control
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos, ypos float64) {
-		if firstMouse {
-			lastMouseX = xpos
-			lastMouseY = ypos
-			firstMouse = false
+		if !rightMouseDown {
+			return
 		}
 
 		xoffset := xpos - lastMouseX
@@ -229,7 +242,7 @@ func setupInputCallbacks(window *glfw.Window, human *renderer.Human) {
 	fmt.Println("  1 - Idle animation")
 	fmt.Println("  2 - Walk animation")
 	fmt.Println("  3 - Jump animation")
-	fmt.Println("  Mouse - Rotate camera")
+	fmt.Println("  Right mouse + drag - Rotate camera")
 	fmt.Println("  Scroll - Zoom in/out")
 	fmt.Println("  ESC - Exit")
 }
@@ -237,9 +250,17 @@ func setupInputCallbacks(window *glfw.Window, human *renderer.Human) {
 func updateAnimation(human *renderer.Human, deltaTime float32) {
 	switch human.AnimationMode {
 	case 1: // Walk
-		human.WalkCycle += deltaTime * 3.0 // Speed of walk animation
+		human.WalkCycle += deltaTime * 3.0
+		// Keep walk cycle in reasonable range for sin function
+		if human.WalkCycle > 2*math.Pi {
+			human.WalkCycle -= 2 * math.Pi
+		}
 	case 2: // Jump
-		human.JumpHeight += deltaTime * 4.0 // Speed of jump animation
+		human.JumpHeight += deltaTime * 4.0
+		// Keep jump height in reasonable range for sin function
+		if human.JumpHeight > 2*math.Pi {
+			human.JumpHeight -= 2 * math.Pi
+		}
 	}
 }
 

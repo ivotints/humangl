@@ -25,8 +25,8 @@ RUN go mod download
 # Копирование исходного кода
 COPY . .
 
-# Сборка приложения
-RUN CGO_ENABLED=1 GOOS=linux go build -o humangl ./cmd/humangl
+# Сборка приложения DO go run, not go build
+RUN CGO_ENABLED=1 GOOS=linux go build -o humangl ./cmd/humangl 
 
 # Финальный образ для запуска
 FROM alpine:latest
