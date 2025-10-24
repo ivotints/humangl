@@ -9,6 +9,7 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/ivotints/humangl/internal/renderer"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 const (
@@ -63,8 +64,26 @@ func main() {
 	}
 	defer shader.Delete()
 
+	cube := renderer.NewCube()
+	defer cube.Delete()
+
+	cameraPos := mgl32.Vec3{0, 0, 3}
+
+	aspectRatio := float32(windowWidth) / float32(windowHeight)
+	projection := renderer.CreateProjectionMatrix(aspectRatio)
+
+	var angle float32 = 0.0
+	lastTime := glfw.GetTime()
+
+
 	// Main render loop
 	for !window.ShouldClose() {
+		currentTime := glfw.GetTime()
+		deltaTime := float32(currentTime - lastTime)
+		lastTime = currentTime
+
+		angle += deltaTime * 50.0
+
 		// Clear buffers
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -72,7 +91,18 @@ func main() {
 
 		shader.SetVec3f("uColor", 1.0, 0.0, 0.0)
 
-		// draw cube here
+		view := renderer.CreateViewMatrix(cameraPos)
+		model := renderer.CreateModelMatrix(
+			mgl32.Vec3{0, 0, 0},
+			mgl32.Vec3{0, angle, 0},
+			mgl32.Vec3{0.5, 0.5, 0.5},
+		)
+
+		shader.SetMat4("uProjection", projection)
+		shader.SetMat4("uView", view)
+		shader.SetMat4("uModel", model)
+
+		cube.Draw()
 
 		// Swap buffers and poll events
 		window.SwapBuffers()

@@ -1,5 +1,7 @@
 # OpenGL Project — HumanGL
 
+NOT FINISHED YET
+
 Write `make run` to launch program
 
 ## Introduction
